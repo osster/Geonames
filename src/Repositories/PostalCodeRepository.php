@@ -9,20 +9,30 @@ use MichaelDrennen\Geonames\Models\PostalCode;
 
 class PostalCodeRepository {
 
+    /**
+     * @var string|null The database connection name
+     */
+    protected ?string $connectionName;
 
     /**
+     * PostalCodeRepository constructor.
+     * @param string|null $connectionName
+     */
+    public function __construct(?string $connectionName = null) {
+        $this->connectionName = $connectionName ?? config('database.default');
+    }
+
+    /**
+     * @param string $postalCode
      * @param string $countryCode
-     * @param string $asciinameTerm
      * @return Collection
      */
-    public function getByCountry( $postalCode, $countryCode = '' ): Collection {
-        $collection = PostalCode::on( env( 'DB_GEONAMES_CONNECTION' ) )
-                             ->where( 'country_code', '=', $countryCode )
-                             ->where( 'postal_code', '=', $postalCode )
-                             ->orderBy( 'country_code', 'ASC' )
-                             ->get();
-
-        return $collection;
+    public function getByCountry(string $postalCode, string $countryCode = ''): Collection {
+        return PostalCode::on($this->connectionName)
+                        ->where('country_code', '=', $countryCode)
+                        ->where('postal_code', '=', $postalCode)
+                        ->orderBy('country_code', 'ASC')
+                        ->get();
     }
 
 

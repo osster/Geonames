@@ -71,6 +71,33 @@ class GeonamesServiceProvider extends \Illuminate\Support\ServiceProvider {
      * @return void
      */
     public function register() {
+        $this->mergeConfigFrom(
+            __DIR__ . '/config/geonames.php', 'geonames'
+        );
 
+        // Register repositories as singletons for better performance
+        $this->app->singleton(\MichaelDrennen\Geonames\Repositories\GeonameRepository::class, function ($app) {
+            return new \MichaelDrennen\Geonames\Repositories\GeonameRepository();
+        });
+
+        $this->app->singleton(\MichaelDrennen\Geonames\Repositories\Admin1CodeRepository::class, function ($app) {
+            return new \MichaelDrennen\Geonames\Repositories\Admin1CodeRepository();
+        });
+
+        $this->app->singleton(\MichaelDrennen\Geonames\Repositories\Admin2CodeRepository::class, function ($app) {
+            return new \MichaelDrennen\Geonames\Repositories\Admin2CodeRepository();
+        });
+
+        $this->app->singleton(\MichaelDrennen\Geonames\Repositories\AlternateNameRepository::class, function ($app) {
+            return new \MichaelDrennen\Geonames\Repositories\AlternateNameRepository();
+        });
+
+        $this->app->singleton(\MichaelDrennen\Geonames\Repositories\FeatureClassRepository::class, function ($app) {
+            return new \MichaelDrennen\Geonames\Repositories\FeatureClassRepository();
+        });
+
+        $this->app->singleton(\MichaelDrennen\Geonames\Repositories\PostalCodeRepository::class, function ($app) {
+            return new \MichaelDrennen\Geonames\Repositories\PostalCodeRepository();
+        });
     }
 }

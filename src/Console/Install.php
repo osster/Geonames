@@ -75,21 +75,21 @@ class Install extends Command {
         try {
             $this->info( "GeoSetting::install() called on connection: " . $this->connectionName );
 
-            if ( $this->option( 'test' ) ):
+            if ( $this->option( 'test' ) ) {
                 GeoSetting::install(
                     [ 'BS', 'YU', 'UZ' ],
                     [ 'en' ],
                     $this->option( 'storage' ),
                     $this->connectionName
                 );
-            else:
+            } else {
                 GeoSetting::install(
                     $this->option( 'country' ),
                     $this->option( 'language' ),
                     $this->option( 'storage' ),
                     $this->connectionName
                 );
-            endif;
+            }
 
 
         } catch ( \Exception $exception ) {
@@ -105,85 +105,78 @@ class Install extends Command {
         GeoSetting::setStatus( GeoSetting::STATUS_INSTALLING, $this->connectionName );
 
         $emptyDirResult = GeoSetting::emptyTheStorageDirectory( $this->connectionName );
-        if ( $emptyDirResult === TRUE ):
+        if ( $emptyDirResult === TRUE ) {
             $this->line( "This storage dir has been emptied: " . GeoSetting::getAbsoluteLocalStoragePath( $this->connectionName ) );
-        endif;
+        }
 
         $this->line( "Starting " . $this->signature );
 
         try {
-            if ( $this->option( 'test' ) ):
-
+            if ( $this->option( 'test' ) ) {
 
                 $this->call( 'geonames:feature-code',
                              [ '--language'   => [ 'en' ],
                                '--connection' => $this->connectionName ] );
 
-
                 $isoLanguageCodeResult = $this->call( 'geonames:iso-language-code',
                                                       [ '--connection' => $this->connectionName ] );
 
-                if ( $isoLanguageCodeResult < 0 ):
+                if ( $isoLanguageCodeResult < 0 ) {
                     $this->error( "Check the log. There was an error running geonames:iso-language-code" );
                     return $isoLanguageCodeResult;
-                else:
+                } else {
                     $this->info( "geonames:iso-language-code COMPLETE" );
-                endif;
-
+                }
 
                 $admin1CodeResult = $this->call( 'geonames:admin-1-code',
                                                  [ '--connection' => $this->connectionName ] );
 
-                if ( $admin1CodeResult < 0 ):
+                if ( $admin1CodeResult < 0 ) {
                     $this->error( "Check the log. There was an error running geonames:admin-1-code" );
                     return $admin1CodeResult;
-                else:
+                } else {
                     $this->info( "geonames:admin-1-code COMPLETE" );
-                endif;
-
+                }
 
                 $admin2CodeResult = $this->call( 'geonames:admin-2-code',
                                                  [ '--test'       => TRUE,
                                                    '--connection' => $this->connectionName ] );
-                if ( $admin2CodeResult < 0 ):
+                if ( $admin2CodeResult < 0 ) {
                     $this->error( "Check the log. There was an error running geonames:admin-2-code" );
                     return $admin2CodeResult;
-                else:
+                } else {
                     $this->info( "geonames:admin-2-code COMPLETE" );
-                endif;
-
+                }
 
                 $featureClassResult = $this->call( 'geonames:feature-class',
                                                    [ '--connection' => $this->connectionName ] );
-                if ( $featureClassResult < 0 ):
+                if ( $featureClassResult < 0 ) {
                     $this->error( "Check the log. There was an error running geonames:feature-class" );
                     return $featureClassResult;
-                else:
+                } else {
                     $this->info( "geonames:feature-class COMPLETE" );
-                endif;
-
+                }
 
                 $alternateNameResult = $this->call( 'geonames:alternate-name',
                                                     [ '--country'    => [ 'BS', 'YU', 'UZ' ],
                                                       '--connection' => $this->connectionName ] );
-                if ( $alternateNameResult < 0 ):
+                if ( $alternateNameResult < 0 ) {
                     $this->error( "Check the log. There was an error running geonames:alternate-name" );
                     return $alternateNameResult;
-                else:
+                } else {
                     $this->info( "geonames:alternate-name COMPLETE" );
-                endif;
-
+                }
 
                 $geonameResult = $this->call( 'geonames:geoname',
                                               [ '--test'       => TRUE,
                                                 '--connection' => $this->connectionName ] );
-                if ( $geonameResult < 0 ):
+                if ( $geonameResult < 0 ) {
                     $this->error( "Check the log. There was an error running geonames:geoname" );
                     return $geonameResult;
-                else:
+                } else {
                     $this->info( "geonames:geoname COMPLETE" );
-                endif;
-            else:
+                }
+            } else {
                 $this->call( 'geonames:feature-code',
                              [ '--language'   => $this->option( 'language' ),
                                '--connection' => $this->connectionName ] );
@@ -200,7 +193,7 @@ class Install extends Command {
                                '--connection' => $this->connectionName ] );
                 $this->call( 'geonames:geoname',
                              [ '--connection' => $this->connectionName ] );
-            endif;
+            }
 
 
         } catch ( \Exception $e ) {
@@ -214,11 +207,11 @@ class Install extends Command {
         GeoSetting::setInstalledAt( $this->connectionName );
         GeoSetting::setStatus( GeoSetting::STATUS_LIVE, $this->connectionName );
         $emptyDirResult = GeoSetting::emptyTheStorageDirectory( $this->connectionName );
-        if ( $emptyDirResult === TRUE ):
+        if ( $emptyDirResult === TRUE ) {
             $this->line( "Our storage directory has been emptied." );
-        else:
+        } else {
             $this->error( "We were unable to empty the storage directory." );
-        endif;
+        }
 
         Log::insert(
             '',

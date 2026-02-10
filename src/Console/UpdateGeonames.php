@@ -108,9 +108,7 @@ class UpdateGeonames extends AbstractCommand {
      * @throws \Exception
      */
     public function handle() {
-
-        //DB::enableQueryLog();
-        ini_set( 'memory_limit', -1 );
+        ini_set('memory_limit', '512M');
 
         try {
             $this->setDatabaseConnectionName();

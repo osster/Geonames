@@ -65,18 +65,40 @@ class Geoname extends Model {
 
 
     /**
+     * Relationship to Admin1Code
+     */
+    public function admin1()
+    {
+        return $this->hasOne(Admin1Code::class, 'admin1_code', 'admin1_code')
+                    ->where('country_code', $this->country_code);
+    }
+
+    /**
      * Given a country_code and admin1_code from the geonames table, it returns the asciiname for this admin 1 record.
      * @return string
      */
-    public function getAdmin1NameAttribute () {
-        try {
-            $admin1CodeRepository = new Admin1CodeRepository();
-            $admin1Code = $admin1CodeRepository->getByCompositeKey( $this->country_code, $this->admin1_code );
-
-            return (string)$admin1Code->asciiname;
-        } catch ( ModelNotFoundException $e ) {
-            return '';
+    public function getAdmin1NameAttribute(): string {
+        if (!$this->relationLoaded('admin1')) {
+            $admin1CodeRepository = app(Admin1CodeRepository::class);
+            try {
+                $admin1Code = $admin1CodeRepository->getByCompositeKey($this->country_code, $this->admin1_code);
+                return (string)$admin1Code->asciiname;
+            } catch (ModelNotFoundException $e) {
+                return '';
+            }
         }
+
+        return $this->admin1 ? (string)$this->admin1->asciiname : '';
+    }
+
+    /**
+     * Relationship to Admin2Code
+     */
+    public function admin2()
+    {
+        return $this->hasOne(Admin2Code::class, 'admin2_code', 'admin2_code')
+                    ->where('country_code', $this->country_code)
+                    ->where('admin1_code', $this->admin1_code);
     }
 
     /**
@@ -91,19 +113,22 @@ class Geoname extends Model {
      * admin2_codes, a blank string is returned for the admin_2_name.
      * @return string   If no matching geonames_admin_2_records row can be found, an empty string is returned.
      */
-    public function getAdmin2NameAttribute () {
-        if ( !$this->thisCountryUsesAdmin2Codes( $this->country_code ) ) {
+    public function getAdmin2NameAttribute(): string {
+        if (!$this->thisCountryUsesAdmin2Codes($this->country_code)) {
             return '';
         }
 
-        try {
-            $admin2CodeRepository = new Admin2CodeRepository();
-            $admin2Code = $admin2CodeRepository->getByCompositeKey( $this->country_code, $this->admin1_code, $this->admin2_code );
-
-            return (string)$admin2Code->asciiname;
-        } catch ( ModelNotFoundException $e ) {
-            return '';
+        if (!$this->relationLoaded('admin2')) {
+            $admin2CodeRepository = app(Admin2CodeRepository::class);
+            try {
+                $admin2Code = $admin2CodeRepository->getByCompositeKey($this->country_code, $this->admin1_code, $this->admin2_code);
+                return (string)$admin2Code->asciiname;
+            } catch (ModelNotFoundException $e) {
+                return '';
+            }
         }
+
+        return $this->admin2 ? (string)$this->admin2->asciiname : '';
     }
 
 
@@ -111,12 +136,8 @@ class Geoname extends Model {
      * @param string $countryCode
      * @return bool
      */
-    protected function thisCountryUsesAdmin2Codes ( string $countryCode ): bool {
-        if ( in_array( $countryCode, $this->countryCodesThatUseAdmin2Codes ) ) {
-            return true;
-        }
-
-        return false;
+    protected function thisCountryUsesAdmin2Codes(string $countryCode): bool {
+        return in_array($countryCode, $this->countryCodesThatUseAdmin2Codes);
     }
 
 }

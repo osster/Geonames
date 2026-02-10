@@ -7,6 +7,18 @@ use MichaelDrennen\Geonames\Models\Admin2Code;
 
 class Admin2CodeRepository {
 
+    /**
+     * @var string|null The database connection name
+     */
+    protected ?string $connectionName;
+
+    /**
+     * Admin2CodeRepository constructor.
+     * @param string|null $connectionName
+     */
+    public function __construct(?string $connectionName = null) {
+        $this->connectionName = $connectionName ?? config('database.default');
+    }
 
     /**
      * @param string $countryCode
@@ -15,16 +27,16 @@ class Admin2CodeRepository {
      * @throws ModelNotFoundException
      * @return Admin2Code
      */
-    public function getByCompositeKey ( string $countryCode, string $admin1Code, string $admin2Code ): Admin2Code {
+    public function getByCompositeKey(string $countryCode, string $admin1Code, string $admin2Code): Admin2Code {
 
-        $admin2CodeModel = Admin2Code::on( env( 'DB_GEONAMES_CONNECTION' ) )
-                                     ->where( 'country_code', $countryCode )
-                                     ->where( 'admin1_code', $admin1Code )
-                                     ->where( 'admin2_code', $admin2Code )
+        $admin2CodeModel = Admin2Code::on($this->connectionName)
+                                     ->where('country_code', $countryCode)
+                                     ->where('admin1_code', $admin1Code)
+                                     ->where('admin2_code', $admin2Code)
                                      ->first();
 
-        if ( is_null( $admin2CodeModel ) ) {
-            throw new ModelNotFoundException( "Unable to find an admin2_code model with country of $countryCode and admin1_code of $admin1Code and admin2_code of $admin2Code" );
+        if (is_null($admin2CodeModel)) {
+            throw new ModelNotFoundException("Unable to find an admin2_code model with country of $countryCode and admin1_code of $admin1Code and admin2_code of $admin2Code");
         }
 
         return $admin2CodeModel;
