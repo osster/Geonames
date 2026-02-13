@@ -119,6 +119,7 @@ class IsoLanguageCode extends AbstractCommand {
      * @throws \Exception
      */
     protected function insertIsoLanguageCodesWithLoadDataInfile( $localFilePath ) {
+        $this->checkLocalInFileConfig();
         ini_set( 'memory_limit', -1 );
         $this->line( "Inserting via LOAD DATA INFILE: " . $localFilePath );
 

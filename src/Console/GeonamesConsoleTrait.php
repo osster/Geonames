@@ -362,6 +362,21 @@ trait GeonamesConsoleTrait {
         endswitch;
     }
 
+    protected function checkLocalInFileConfig() {
+        $result = DB::connection( $this->connectionName )
+            ->select("SHOW GLOBAL VARIABLES LIKE 'local_infile'");
+
+        if (!empty($result)) {
+            if ($result[0]->Value === "OFF") {
+                $this->info( "Trying to enable 'local_infile'  " . $this->getRunTime() . " seconds." );
+                DB::connection( $this->connectionName )
+                    ->statement("SET GLOBAL local_infile = 1");
+            }
+        } else {
+            $this->warn( "Can't check 'local_infile'  " . $this->getRunTime() . " seconds." );
+        }
+    }
+
     /**
      * I use 'working' tables for smaller tables that get flushed and refilled with new data. This insures basically
      * zero downtime when updating the table.
